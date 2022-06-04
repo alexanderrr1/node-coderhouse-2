@@ -1,9 +1,9 @@
-import { promises as fsp } from 'fs';
+const fsp = require('fs/promises');
 
-class Container {
-    
+class Contenedor {
+
     constructor(fileName){
-        this.fileName = fileName + '.json';
+        this.fileName = fileName + '.txt';
         this.encode = "utf-8";
     };
 
@@ -11,7 +11,7 @@ class Container {
         const listOfProducts = await this.getAll();
         element.id = listOfProducts.length + 1;
         listOfProducts.push(element);
-        await fsp.writeFile(`./data/${this.fileName}`, JSON.stringify(listOfProducts), this.encode);
+        await fsp.writeFile(`./${this.fileName}`, JSON.stringify(listOfProducts), this.encode);
         return element.id;
     };
 
@@ -23,11 +23,11 @@ class Container {
     };
 
     async getAll() {
-        const readedData = await fsp.readFile(`./data/${this.fileName}`, this.encode);
+        const readedData = await fsp.readFile(`./${this.fileName}`, this.encode);
         const firstChar = readedData.charAt(0);
         const lastChar = readedData.charAt(readedData.length - 1);
         if( firstChar != "[" || lastChar != "]")  await fsp.writeFile(`./data/${this.fileName}`, "[]", this.encode);
-        return JSON.parse(await fsp.readFile(`./data/${this.fileName}`, this.encode));
+        return JSON.parse(await fsp.readFile(`./${this.fileName}`, this.encode));
     };
 
     async deleteById(id){
@@ -36,17 +36,17 @@ class Container {
         if(foundProduct != -1){
             await this.deleteAll();
             file.splice(foundProduct, 1);
-            await fsp.writeFile(`./data/${this.fileName}`, JSON.stringify(file), this.encode);
+            await fsp.writeFile(`./${this.fileName}`, JSON.stringify(file), this.encode);
         }
         return `Deleted element with id ${id}`;
     };
 
     async deleteAll() {
         const emptyFile = JSON.stringify([]);
-        await fsp.writeFile(`./data/${this.fileName}`, emptyFile, this.encode);
-        return `All element were deleted`; 
+        await fsp.writeFile(`./${this.fileName}`, emptyFile, this.encode);
+        return `All element were deleted`;
     };
 
 };
 
-export default Container;
+module.exports = Contenedor;
