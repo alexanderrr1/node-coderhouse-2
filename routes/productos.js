@@ -1,6 +1,6 @@
 const express = require('express');
-const Contenedor = require('../Contenedor');
 const router = express.Router();
+const Contenedor = require('../Contenedor');
 
 const contenedor = new Contenedor('productos');
 
