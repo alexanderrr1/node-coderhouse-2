@@ -1,4 +1,5 @@
 const express = require('express')
+const { engine } = require("express-handlebars");
 const productosApiRouter = require('./routes/productosAPI');
 const productosRouter = require('./routes/productos');
 const indexRouter = require('./routes/index');
@@ -13,7 +14,9 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 /* View Engine */
-app.set('view engine', 'ejs');
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', './views');
 
 /* Routing */
 app.use('/', indexRouter);
