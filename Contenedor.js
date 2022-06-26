@@ -7,6 +7,13 @@ class Contenedor {
         this.encode = "utf-8";
     };
 
+    async initialize() {
+        const readedData = await fsp.readFile(`./${this.fileName}`, this.encode);
+        if(readedData == "") {
+            await fsp.writeFile(`./${this.fileName}`, '[]', this.encode);
+        }
+    }
+
     async save(element) {
         const listOfProducts = await this.getAll();
         element.id = listOfProducts[listOfProducts.length-1].id + 1
