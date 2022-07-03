@@ -1,4 +1,5 @@
-const express = require('express')
+require('dotenv').config();
+const express = require('express');
 const { Server } = require("socket.io");
 const { engine } = require("express-handlebars");
 const http = require('http');
@@ -8,14 +9,16 @@ const Contenedor = require("./Contenedor");
 
 /* Routers */
 const productosApiRouter = require('./routes/productosAPI');
+const carritosApiRouter = require('./routes/carritosAPI');
 const productosRouter = require('./routes/productos');
 const indexRouter = require('./routes/index');
+const errorRouter = require('./routes/error');
 
 /* Base */
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server)
-const port = 8080;
+const port = process.env.PORT;
 
 /* Express Config */
 app.use(express.json());
@@ -31,6 +34,8 @@ app.set('views', './views');
 app.use('/', indexRouter);
 app.use('/productos', productosRouter);
 app.use('/api/productos', productosApiRouter);
+app.use('/api/carrito', carritosApiRouter);
+app.use('/*', errorRouter);
 
 /* Variables para socketIO*/
 let mensajes = [];

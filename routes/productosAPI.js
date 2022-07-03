@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const Contenedor = require('../Contenedor');
 
 const contenedor = new Contenedor('productos');
+const isAdmin = process.env.ADMIN === "true";
 
 router.get('/', async(req, res) => {
     const productos = await contenedor.getAll();
@@ -25,14 +27,26 @@ router.get('/:id', async(req, res) => {
 })
 
 router.post('/', async(req, res) => {
+    if(!isAdmin) {
+        return res.json({
+            error: -1,
+            descripcion: 'Perfil no autorizado'
+        })
+    }
     const productoIngresado = req.body;
     const productoGuardado = await contenedor.save(productoIngresado);
-    res.json({
+    return res.json({
         producto: productoGuardado
     })
 })
 
 router.put('/:id', async(req, res) => {
+    if(!isAdmin) {
+        return res.json({
+            error: -1,
+            descripcion: 'Perfil no autorizado'
+        })
+    }
     if(typeof await contenedor.getById(req.params.id) == 'string'){
         return res.json({
             error: 'producto no encontrado'
@@ -47,6 +61,12 @@ router.put('/:id', async(req, res) => {
 })
 
 router.delete('/:id', async(req, res) => {
+    if(!isAdmin) {
+        return res.json({
+            error: -1,
+            descripcion: 'Perfil no autorizado'
+        })
+    }
     if(typeof await contenedor.getById(req.params.id) == 'string'){
         return res.json({
             error: 'producto no encontrado'

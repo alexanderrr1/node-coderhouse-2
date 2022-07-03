@@ -16,7 +16,8 @@ class Contenedor {
 
     async save(element) {
         const listOfProducts = await this.getAll();
-        element.id = listOfProducts[listOfProducts.length-1].id + 1
+        element.id = listOfProducts[listOfProducts.length-1].id + 1;
+        element.timestamp = Date.now();
         listOfProducts.push(element);
         await fsp.writeFile(`./${this.fileName}`, JSON.stringify(listOfProducts), this.encode);
         return element;
@@ -58,9 +59,13 @@ class Contenedor {
         const file = await this.getAll();
         const foundProductIndex = file.findIndex(element => element.id == id );
         const oldProduct = await this.getById(id);
-        oldProduct.title = newElement.title;
-        oldProduct.thumbnail = newElement.thumbnail;
-        oldProduct.price = newElement.price;
+        oldProduct.timestamp = Date.now();
+        oldProduct.nombre = newElement.nombre;
+        oldProduct.descripcion = newElement.descripcion;
+        oldProduct.codigo = newElement.codigo;
+        oldProduct.foto = newElement.foto;
+        oldProduct.precio = newElement.precio;
+        oldProduct.stock = newElement.stock;
         file.splice(foundProductIndex, 1, oldProduct);
         await this.deleteAll();
         await fsp.writeFile(`./${this.fileName}`, JSON.stringify(file), this.encode);
