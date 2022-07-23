@@ -3,19 +3,19 @@
     <div class="m-4">
         <form id="productForm" method="post" action="/productos">
             <div class="mb-3">
-                <label for="title" class="form-label"><i><strong>Nombre</strong></i></label>
-                <input type="text" class="form-control" id="nombre" name="title">
+                <label for="nombre" class="form-label"><i><strong>Nombre</strong></i></label>
+                <input type="text" class="form-control" id="nombre" name="nombre">
             </div>
             <div class="mb-3">
-                <label for="price" class="form-label"><i><strong>Precio</strong></i></label>
+                <label for="precio" class="form-label"><i><strong>Precio</strong></i></label>
                 <div class="input-group">
                     <span class="input-group-text">$</span>
-                    <input type="number" min="0" step="0.01" class="form-control" name="price">
+                    <input type="number" min="0" step="0.01" class="form-control" name="precio">
                 </div>
             </div>
             <div class="mb-3">
-                <label for="thumbnail" class="form-label"><i><strong>Foto URL</strong></i></label>
-                <input type="text" class="form-control" id="nombre" name="thumbnail">
+                <label for="foto" class="form-label"><i><strong>Foto URL</strong></i></label>
+                <input type="text" class="form-control" id="nombre" name="foto">
             </div>
             <button type="submit" class="btn btn-success"><strong>Enviar</strong></button>
         </form>
@@ -73,14 +73,14 @@
 
         productForm.addEventListener('submit', async(e) => {
             e.preventDefault();
-            const title = document.getElementsByName("title").item(0).value;
-            const price = document.getElementsByName("price").item(0).value;
-            const thumbnail = document.getElementsByName("thumbnail").item(0).value;
-            const product = {title, price, thumbnail};
-            title.value = "";
-            price.value = "";
-            thumbnail.value = "";
-            await postProducts(product);
+            const nombre = document.getElementsByName("nombre").item(0).value;
+            const precio = document.getElementsByName("precio").item(0).value;
+            const foto = document.getElementsByName("foto").item(0).value;
+            const producto = {nombre, precio, foto};
+            nombre.value = "";
+            precio.value = "";
+            foto.value = "";
+            await postProducts(producto);
 
             socket.emit("product");
         })
@@ -141,13 +141,12 @@
                         </tr>
         `
         productsList.forEach( product => {
-            console.log(product.price);
             buffer += `
                 <tr>
                     <td>${product.id}</td>
-                    <td>${product.title}</td>
-                    <td>${parseFloat(product.price).toFixed(2)}</td>
-                    <td><img class="images" src="${product.thumbnail}"></td>
+                    <td>${product.nombre}</td>
+                    <td>${parseFloat(product.precio).toFixed(2)}</td>
+                    <td><img class="images" src="${product.foto}"></td>
                 </tr>
             `
         });

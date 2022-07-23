@@ -1,13 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const Contenedor = require('../Contenedor');
+const Contenedor = require('../ContenedorDB');
+const { options } = require("../config/productDB");
 
-const contenedor = new Contenedor('productos');
+const contenedor = new Contenedor(options);
 const isAdmin = process.env.ADMIN === "true";
 
 router.get('/', async(req, res) => {
-    const productos = await contenedor.getAll();
+    const productos = await contenedor.getAll('product');
     res.json({
         productos
     })
@@ -34,7 +35,7 @@ router.post('/', async(req, res) => {
         })
     }
     const productoIngresado = req.body;
-    const productoGuardado = await contenedor.save(productoIngresado);
+    const productoGuardado = await contenedor.save('product', productoIngresado);
     return res.json({
         producto: productoGuardado
     })

@@ -4,8 +4,8 @@ const { Server } = require("socket.io");
 const { engine } = require("express-handlebars");
 const http = require('http');
 const path = require('path');
-const fs = require("fs");
-const Contenedor = require("./Contenedor");
+const Contenedor = require("./ContenedorDB");
+const { options : optionsMessageDB } = require("./config/messageDB");
 
 /* Routers */
 const productosApiRouter = require('./routes/productosAPI');
@@ -13,6 +13,7 @@ const carritosApiRouter = require('./routes/carritosAPI');
 const productosRouter = require('./routes/productos');
 const indexRouter = require('./routes/index');
 const errorRouter = require('./routes/error');
+
 
 /* Base */
 const app = express();
@@ -38,29 +39,20 @@ app.use('/api/carrito', carritosApiRouter);
 app.use('/*', errorRouter);
 
 /* Variables para socketIO*/
-let mensajes = [];
-const messages_db = './messages.txt';
-const utf = 'utf-8';
-
-(async() => {
-    const contenedor = new Contenedor("messages");
-    await contenedor.initialize();
-})();
+const messageDB = new Contenedor(optionsMessageDB);
 
 /* Socket IO */
-io.on("connection", socket => {
+io.on("connection", async( socket) => {
     console.log("SocketIO Connected!");
-    const messages = JSON.parse(fs.readFileSync(messages_db, utf));
 
-    mensajes = messages;
-
+    /* Inicializo mensajes */
+    const messages = await messageDB.getAll('message');
     socket.emit("initial", messages);
 
-    socket.on("sendMessage", (data) => {
-        data.timestamp = (new Date).toLocaleString();
-        mensajes.push(data);
-        io.sockets.emit("shareMessages", mensajes);
-        fs.writeFileSync(messages_db, JSON.stringify(mensajes), utf);
+    /* Actualizo mensajes con cada chat */
+    socket.on("sendMessage", async(data) => {
+        await messageDB.save('message', data);
+        io.sockets.emit("shareMessages", await messageDB.getAll('message'));
     });
 
     socket.on("product", () => {
