@@ -1,11 +1,12 @@
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { promises as fsp } from 'fs';
+import ProductosDaoArchivo from "../src/daos/ProductosDaoArchivo.js";
 
 export const router = express.Router();
 
+const productosDao = new ProductosDaoArchivo();
 const carritosDB = './carritos.txt';
-const productosDB = './productos.txt';
 const utf = 'utf-8'
 
 router.post('/', async(req, res) => {
@@ -65,7 +66,7 @@ router.post('/:id_carrito/productos/:id_producto', async(req, res) => {
         })
     }
     // Traer el producto a guardar
-    const productosList = await leerProductosDB();
+    const productosList = productosDao.findAll();
     const productoParaAgregarAlCarrito = productosList.filter(producto => producto.id == id_producto)[0];
     if(productoParaAgregarAlCarrito == undefined){
         return res.status(404).json({
@@ -132,14 +133,6 @@ const leerCarritosDB = async() => {
 
 const escribirCarritosDB = async(data) => {
     await fsp.writeFile(carritosDB, JSON.stringify(data), utf);
-}
-
-const leerProductosDB = async() => {
-    let lectura = await fsp.readFile(productosDB, utf);
-    if( lectura == "" ){
-        lectura = "[]";
-    }
-    return JSON.parse(lectura);
 }
 
 const existeProductoEnElCarrito = (productosDelCarrito, productoId) => {

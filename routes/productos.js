@@ -1,12 +1,12 @@
 import express from 'express';
-import Contenedor from '../Contenedor.js';
+import ProductosDaoArchivo from "../src/daos/ProductosDaoArchivo.js";
 
 export const router = express.Router();
 
-const contenedor = new Contenedor('productos');
+const contenedor = new ProductosDaoArchivo();
 
 router.get('/', async(req, res) => {
-    const productosList = await contenedor.getAll();
+    const productosList = await contenedor.findAll();
     res.render('productoList',{
         productosList
     })

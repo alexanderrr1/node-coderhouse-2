@@ -1,26 +1,26 @@
 import "dotenv/config.js"
 import express from 'express';
-import Contenedor from '../Contenedor.js';
+import ProductosDaoArchivo from "../src/daos/ProductosDaoArchivo.js";
 
 export const router = express.Router();
 
-const contenedor = new Contenedor('productos');
+const contenedor = new ProductosDaoArchivo();
 const isAdmin = process.env.ADMIN === "true";
 
 router.get('/', async(req, res) => {
-    const productos = await contenedor.getAll();
+    const productos = await contenedor.findAll();
     res.json({
         productos
     })
 })
 
 router.get('/:id', async(req, res) => {
-    if(typeof await contenedor.getById(req.params.id) == 'string'){
+    if(typeof await contenedor.findById(req.params.id) == 'string'){
         return res.json({
             error: 'producto no encontrado'
         })
     }
-    const productos = await contenedor.getAll();
+    const productos = await contenedor.findAll();
     const productoSeleccionado = productos.filter(producto => producto.id == req.params.id);
     return res.json( {
         producto: productoSeleccionado
@@ -48,7 +48,7 @@ router.put('/:id', async(req, res) => {
             descripcion: 'Perfil no autorizado'
         })
     }
-    if(typeof await contenedor.getById(req.params.id) == 'string'){
+    if(typeof await contenedor.findById(req.params.id) == 'string'){
         return res.json({
             error: 'producto no encontrado'
         })
@@ -68,7 +68,7 @@ router.delete('/:id', async(req, res) => {
             descripcion: 'Perfil no autorizado'
         })
     }
-    if(typeof await contenedor.getById(req.params.id) == 'string'){
+    if(typeof await contenedor.findById(req.params.id) == 'string'){
         return res.json({
             error: 'producto no encontrado'
         })
