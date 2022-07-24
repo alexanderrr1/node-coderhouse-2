@@ -1,7 +1,8 @@
-require('dotenv').config();
-const express = require('express');
-const router = express.Router();
-const Contenedor = require('../Contenedor');
+import "dotenv/config.js"
+import express from 'express';
+import Contenedor from '../Contenedor.js';
+
+export const router = express.Router();
 
 const contenedor = new Contenedor('productos');
 const isAdmin = process.env.ADMIN === "true";
@@ -78,5 +79,3 @@ router.delete('/:id', async(req, res) => {
         msg: "Producto Eliminado"
     })
 })
-
-module.exports = router;

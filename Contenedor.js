@@ -1,4 +1,4 @@
-const fsp = require('fs/promises');
+import * as fsp from 'fs/promises';
 
 class Contenedor {
 
@@ -74,4 +74,4 @@ class Contenedor {
 
 };
 
-module.exports = Contenedor;
+export default Contenedor;

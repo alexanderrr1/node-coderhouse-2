@@ -1,6 +1,7 @@
-const express = require('express');
-const router = express.Router();
-const Contenedor = require('../Contenedor');
+import express from 'express';
+import Contenedor from '../Contenedor.js';
+
+export const router = express.Router();
 
 const contenedor = new Contenedor('productos');
 
@@ -19,5 +20,3 @@ router.post('/', async(req, res) => {
     await contenedor.save(req.body);
     res.render('productoForm');
 })
-
-module.exports = router;

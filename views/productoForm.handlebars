@@ -128,6 +128,7 @@
         const response = await fetch(API_ROUTE);
         const data = await response.json();
         const productsList = data.productos;
+        console.log(productsList);
         let container = document.getElementById('containerProductList');
         let buffer = `
             <div class="container back-grey m-3 p-3">
@@ -145,9 +146,9 @@
             buffer += `
                 <tr>
                     <td>${product.id}</td>
-                    <td>${product.title}</td>
-                    <td>${parseFloat(product.price).toFixed(2)}</td>
-                    <td><img class="images" src="${product.thumbnail}"></td>
+                    <td>${product.nombre}</td>
+                    <td>${parseFloat(product.precio).toFixed(2)}</td>
+                    <td><img class="images" src="${product.foto}"></td>
                 </tr>
             `
         });

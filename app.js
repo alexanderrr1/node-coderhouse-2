@@ -1,24 +1,27 @@
-require('dotenv').config();
-const express = require('express');
-const { Server } = require("socket.io");
-const { engine } = require("express-handlebars");
-const http = require('http');
-const path = require('path');
-const fs = require("fs");
-const Contenedor = require("./Contenedor");
+import "dotenv/config.js"
+import express from 'express';
+import { Server } from 'socket.io';
+import { engine } from "express-handlebars";
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Contenedor from './Contenedor.js';
 
 /* Routers */
-const productosApiRouter = require('./routes/productosAPI');
-const carritosApiRouter = require('./routes/carritosAPI');
-const productosRouter = require('./routes/productos');
-const indexRouter = require('./routes/index');
-const errorRouter = require('./routes/error');
+import { router as productosApiRouter} from './routes/productosAPI.js';
+import { router as carritosApiRouter} from './routes/carritosAPI.js';
+import { router as productosRouter} from './routes/productos.js';
+import { router as indexRouter} from './routes/index.js';
+import { router as errorRouter} from './routes/error.js';
 
 /* Base */
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server)
 const port = process.env.PORT;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /* Express Config */
 app.use(express.json());

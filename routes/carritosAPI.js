@@ -1,7 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const { v4: uuidv4 } = require('uuid');
-const { promises : fsp } = require('fs');
+import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import { promises as fsp } from 'fs';
+
+export const router = express.Router();
 
 const carritosDB = './carritos.txt';
 const productosDB = './productos.txt';
@@ -147,5 +148,3 @@ const existeProductoEnElCarrito = (productosDelCarrito, productoId) => {
     const finded = productosDelCarrito.find(producto => producto.id == productoId);
     return finded == undefined ? false : true;
 }
-
-module.exports = router;
