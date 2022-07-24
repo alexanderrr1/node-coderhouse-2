@@ -8,8 +8,6 @@ import { fileURLToPath } from 'url';
 /* Routers */
 import { router as productosApiRouter} from './routes/productosAPI.js';
 import { router as carritosApiRouter} from './routes/carritosAPI.js';
-import { router as productosRouter} from './routes/productos.js';
-import { router as indexRouter} from './routes/index.js';
 import { router as errorRouter} from './routes/error.js';
 
 /* Base */
@@ -30,8 +28,6 @@ app.set('view engine', 'handlebars');
 app.set('views', './views');
 
 /* Routing */
-app.use('/', indexRouter);
-app.use('/productos', productosRouter);
 app.use('/api/productos', productosApiRouter);
 app.use('/api/carrito', carritosApiRouter);
 app.use('/*', errorRouter);
