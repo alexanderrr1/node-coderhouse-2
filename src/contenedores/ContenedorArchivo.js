@@ -24,43 +24,29 @@ class ContenedorArchivo {
     };
 
     async findById(id) {
-        const listOfProducts = await this.findAll();
-        const foundProduct = listOfProducts.find(element => element.id == id);
-        if(!foundProduct) return 'producto no encontrado';
-        return foundProduct;
+        const listOfElements = await this.findAll();
+        const foundElement = listOfElements.find(element => element.id == id);
+        if(!foundElement) return 'Elemento no encontrado';
+        return foundElement;
     };
 
     async save(element) {
-        const listOfProducts = await this.findAll();
-        element.id = listOfProducts[listOfProducts.length-1].id + 1;
+        const listOfElements = await this.findAll();
+        element.id = listOfElements[listOfElements.length-1].id + 1;
         element.timestamp = Date.now();
-        listOfProducts.push(element);
-        await fsp.writeFile(this.filePath, JSON.stringify(listOfProducts), this.encode);
+        listOfElements.push(element);
+        await fsp.writeFile(this.filePath, JSON.stringify(listOfElements), this.encode);
         return element;
     };
 
     async updateById(newElement, id) {
-        const file = await this.findAll();
-        const foundProductIndex = file.findIndex(element => element.id == id );
-        const oldProduct = await this.findById(id);
-        oldProduct.timestamp = Date.now();
-        oldProduct.nombre = newElement.nombre;
-        oldProduct.descripcion = newElement.descripcion;
-        oldProduct.codigo = newElement.codigo;
-        oldProduct.foto = newElement.foto;
-        oldProduct.precio = newElement.precio;
-        oldProduct.stock = newElement.stock;
-        file.splice(foundProductIndex, 1, oldProduct);
-        await this.deleteAll();
-        await fsp.writeFile(this.filePath, JSON.stringify(file), this.encode);
-        return oldProduct;
     }
 
     async deleteById(id){
         const file = await this.findAll();
-        const foundProduct = file.findIndex(element => element.id == id);
-        if(foundProduct != -1){
-            file.splice(foundProduct, 1);
+        const foundElement = file.findIndex(element => element.id == id);
+        if(foundElement != -1){
+            file.splice(foundElement, 1);
             await this.deleteAll();
             await fsp.writeFile(this.filePath, JSON.stringify(file), this.encode);
         }

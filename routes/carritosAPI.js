@@ -1,49 +1,46 @@
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { promises as fsp } from 'fs';
-import ProductosDaoArchivo from "../src/daos/ProductosDaoArchivo.js";
+import CarritosDaoArchivo from "../src/daos/carritos/CarritosDaoArchivo.js";
+import ProductosDaoArchivo from "../src/daos/productos/ProductosDaoArchivo.js";
 
 export const router = express.Router();
 
 const productosDao = new ProductosDaoArchivo();
-const carritosDB = './carritos.txt';
-const utf = 'utf-8'
+const carritosDao = new CarritosDaoArchivo();
 
+/* Crear Carrito */
 router.post('/', async(req, res) => {
-    const carritosList = await leerCarritosDB();
     const carrito = {
         id: uuidv4(),
         timestamp: Date.now(),
         productos: [],
     };
-    carritosList.push(carrito);
-    escribirCarritosDB(carritosList);
+    await carritosDao.save(carrito);
     res.status(201).json({
         msg: `Se ha creado el carrito ${carrito.id} con éxito`
     });
 });
 
+/* Eliminar Carrito por ID */
 router.delete('/:id', async(req, res) => {
     const { id } = req.params;
-    const carritosList = await leerCarritosDB();
-    const carritoParaEliminar = carritosList.filter(carrito => carrito.id == id)[0];
+    const carritoParaEliminar = await carritosDao.findById(id);
     if(carritoParaEliminar == undefined){
         return res.status(404).json({
             msg: `No existe carrito con id ${id}.`
         })
     }
-    const carritosListFiltrada = carritosList.filter(carrito => carrito.id != id);
-    await escribirCarritosDB(carritosListFiltrada);
+    await carritosDao.deleteById(id);
     return res.json({
         msg: 'Carrito eliminado con éxito.'
     });
 });
 
+/* Obtener Productos de Carrito */
 router.get('/:id/productos', async(req, res) => {
     const { id } = req.params;
     //Traer el carrito a mostrar los productos
-    const carritosList = await leerCarritosDB();
-    const carritoMostrarProductos = carritosList.filter(carrito => carrito.id == id)[0];
+    const carritoMostrarProductos = await carritosDao.findById(id);
     if(carritoMostrarProductos == undefined){
         return res.status(404).json({
             msg: `No existe carrito con id ${id}.`
@@ -55,49 +52,39 @@ router.get('/:id/productos', async(req, res) => {
     })
 })
 
+/* Agregar Producto al Carrito */
 router.post('/:id_carrito/productos/:id_producto', async(req, res) => {
     const { id_carrito, id_producto } = req.params;
     //Traer el carrito a modificar
-    const carritosList = await leerCarritosDB();
-    const carritoParaModificar = carritosList.filter(carrito => carrito.id == id_carrito)[0];
+    const carritoParaModificar = await carritosDao.findById(id_carrito);
     if(carritoParaModificar == undefined){
         return res.status(404).json({
             msg: `No existe carrito con id ${id_carrito}.`
         })
     }
     // Traer el producto a guardar
-    const productosList = productosDao.findAll();
-    const productoParaAgregarAlCarrito = productosList.filter(producto => producto.id == id_producto)[0];
+    const productoParaAgregarAlCarrito = await productosDao.findById(id_producto);
     if(productoParaAgregarAlCarrito == undefined){
         return res.status(404).json({
             msg: `No existe producto con id ${id_producto}.`
         });
     }
-    // Validar que el producto no exista en el carrito
-    console.log(carritoParaModificar);
-    for(productoEnCarrito of carritoParaModificar.productos){
-        if(productoEnCarrito.id == productoParaAgregarAlCarrito.id){
-            return res.status(404).json({
-                msg: `El producto seleccionado ya se encuentra en el carrito.`
-            });
-        };
-    }
+
     // Agrego el Producto
     carritoParaModificar.productos.push(productoParaAgregarAlCarrito);
+
     // Guardo el carrito en la DB
-    const carritosListActualizada = carritosList.filter(carrito => carrito.id != id_carrito);
-    carritosListActualizada.push(carritoParaModificar);
-    await escribirCarritosDB(carritosListActualizada);
+    const carritoModificado = await carritosDao.updateById(carritoParaModificar, id_carrito);
     res.status(200).json({
-        carritoParaModificar
+        carritoModificado
     })
 });
 
+/* Borrar Producto de Carrito */
 router.delete('/:id_carrito/productos/:id_producto', async(req, res) => {
     const { id_carrito, id_producto } = req.params;
     // Traer el carrito elegido
-    const carritosList = await leerCarritosDB();
-    const carritoParaEliminarProducto = carritosList.filter(carrito => carrito.id == id_carrito)[0];
+    const carritoParaEliminarProducto = await carritosDao.findById(id_carrito);
     if(carritoParaEliminarProducto == undefined){
         return res.status(404).json({
             msg: `No existe carrito con id ${id_carrito}.`
@@ -114,30 +101,15 @@ router.delete('/:id_carrito/productos/:id_producto', async(req, res) => {
     // Asigno los nuevos productos (No eliminados) al carrito.
     productosDelCarrito = productosDelCarrito.filter(producto => producto.id != id_producto);
     carritoParaEliminarProducto.productos = productosDelCarrito;
+
     // Guardo el carrito en la DB
-    const carritosListActualizada = carritosList.filter(carrito => carrito.id != id_carrito);
-    carritosListActualizada.push(carritoParaEliminarProducto);
-    await escribirCarritosDB(carritosListActualizada);
+    await carritosDao.updateById(carritoParaEliminarProducto, id_carrito);
     return res.status(200).json({
         carritoParaEliminarProducto
     })
 })
 
-const leerCarritosDB = async() => {
-    let lectura = await fsp.readFile(carritosDB, utf);
-    if( lectura == "" ){
-        lectura = "[]";
-    }
-    return JSON.parse(lectura);
-}
-
-const escribirCarritosDB = async(data) => {
-    await fsp.writeFile(carritosDB, JSON.stringify(data), utf);
-}
-
 const existeProductoEnElCarrito = (productosDelCarrito, productoId) => {
-    console.log(productosDelCarrito);
-    console.log(productoId);
     const finded = productosDelCarrito.find(producto => producto.id == productoId);
     return finded == undefined ? false : true;
 }

@@ -1,6 +1,6 @@
 import "dotenv/config.js"
 import express from 'express';
-import ProductosDaoArchivo from "../src/daos/ProductosDaoArchivo.js";
+import ProductosDaoArchivo from "../src/daos/productos/ProductosDaoArchivo.js";
 
 export const router = express.Router();
 
