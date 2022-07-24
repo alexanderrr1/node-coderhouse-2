@@ -1,6 +1,5 @@
 import "dotenv/config.js"
 import express from 'express';
-import { engine } from "express-handlebars";
 import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -21,11 +20,6 @@ const __dirname = path.dirname(__filename);
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
-
-/* View Engine */
-app.engine('handlebars', engine());
-app.set('view engine', 'handlebars');
-app.set('views', './views');
 
 /* Routing */
 app.use('/api/productos', productosApiRouter);
