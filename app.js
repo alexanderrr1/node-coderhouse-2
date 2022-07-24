@@ -7,6 +7,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Contenedor from './Contenedor.js';
+import ContenedorMemoria from "./src/contenedores/ContenedorMemoria.js";
+const contenedorMemoria = new ContenedorMemoria();
+contenedorMemoria.save({name: "asd"});
 
 /* Routers */
 import { router as productosApiRouter} from './routes/productosAPI.js';

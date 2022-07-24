@@ -15,13 +15,12 @@ class ContenedorArchivo {
         }
     }
 
-    async save(element) {
-        const listOfProducts = await this.findAll();
-        element.id = listOfProducts[listOfProducts.length-1].id + 1;
-        element.timestamp = Date.now();
-        listOfProducts.push(element);
-        await fsp.writeFile(this.filePath, JSON.stringify(listOfProducts), this.encode);
-        return element;
+    async findAll() {
+        const readedData = await fsp.readFile(this.filePath, this.encode);
+        const firstChar = readedData.charAt(0);
+        const lastChar = readedData.charAt(readedData.length - 1);
+        if( firstChar != "[" || lastChar != "]")  await fsp.writeFile(this.filePath, "[]", this.encode);
+        return JSON.parse(await fsp.readFile(this.filePath, this.encode));
     };
 
     async findById(id) {
@@ -31,29 +30,13 @@ class ContenedorArchivo {
         return foundProduct;
     };
 
-    async findAll() {
-        const readedData = await fsp.readFile(this.filePath, this.encode);
-        const firstChar = readedData.charAt(0);
-        const lastChar = readedData.charAt(readedData.length - 1);
-        if( firstChar != "[" || lastChar != "]")  await fsp.writeFile(this.filePath, "[]", this.encode);
-        return JSON.parse(await fsp.readFile(this.filePath, this.encode));
-    };
-
-    async deleteById(id){
-        const file = await this.findAll();
-        const foundProduct = file.findIndex(element => element.id == id);
-        if(foundProduct != -1){
-            file.splice(foundProduct, 1);
-            await this.deleteAll();
-            await fsp.writeFile(this.filePath, JSON.stringify(file), this.encode);
-        }
-        return `Deleted element with id ${id}`;
-    };
-
-    async deleteAll() {
-        const emptyFile = JSON.stringify([]);
-        await fsp.writeFile(this.filePath, emptyFile, this.encode);
-        return `All element were deleted`;
+    async save(element) {
+        const listOfProducts = await this.findAll();
+        element.id = listOfProducts[listOfProducts.length-1].id + 1;
+        element.timestamp = Date.now();
+        listOfProducts.push(element);
+        await fsp.writeFile(this.filePath, JSON.stringify(listOfProducts), this.encode);
+        return element;
     };
 
     async updateById(newElement, id) {
@@ -72,6 +55,23 @@ class ContenedorArchivo {
         await fsp.writeFile(this.filePath, JSON.stringify(file), this.encode);
         return oldProduct;
     }
+
+    async deleteById(id){
+        const file = await this.findAll();
+        const foundProduct = file.findIndex(element => element.id == id);
+        if(foundProduct != -1){
+            file.splice(foundProduct, 1);
+            await this.deleteAll();
+            await fsp.writeFile(this.filePath, JSON.stringify(file), this.encode);
+        }
+        return `Deleted element with id ${id}`;
+    };
+
+    async deleteAll() {
+        const emptyFile = JSON.stringify([]);
+        await fsp.writeFile(this.filePath, emptyFile, this.encode);
+        return `All element were deleted`;
+    };
 
 };
 
